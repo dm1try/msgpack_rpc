@@ -29,15 +29,20 @@ defmodule MessagePack.Transports.Port do
   end
 
   def handle_info({_port, {:data, data}}, state) do
-    {unpacked_data, rest} = Msgpax.unpack_slice!(state.rest_data <> data)
-
-    if unpacked_data do
-      Session.dispatch_data(state.session, unpacked_data)
-    end
-
+    rest = dispatch(state.session, state.rest_data <> data)
     state = %{state | rest_data: rest}
 
     {:noreply, state}
+  end
+
+  defp dispatch(session, data) do
+    case  Msgpax.unpack_slice(data) do
+      {:error, :incomplete} -> data
+      {:ok, "", rest} -> rest
+      {:ok, unpacked_data, rest} ->
+        Session.dispatch_data(session, unpacked_data)
+        dispatch(session, rest)
+    end
   end
 end
 
