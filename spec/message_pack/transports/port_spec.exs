@@ -14,8 +14,6 @@ defmodule MessagePack.Transports.PortSpec do
       [method_handler: TestHandler , transport: Port],
       [name: @session_name]
     )
-
-    allow(MessagePack.RPC.Session).to accept(:dispatch_data)
   end
 
   finally do
@@ -29,12 +27,18 @@ defmodule MessagePack.Transports.PortSpec do
   it "calls session with unpacked msgpax message" do
     send_data_from_port(packed_message)
 
-    expect MessagePack.RPC.Session |> to(
-      accepted :dispatch_data, [TestSession, unpacked_message]
-    )
+    expect_unpacked_message_received
   end
 
   defp send_data_from_port(data) do
-    send TestPort, {:port, {:data, data}}
+    send @port_name, {:port, {:data, data}}
+  end
+
+  defp expect_unpacked_message_received do
+    receive do
+      {:data, data} -> expect(data).to eq(unpacked_message)
+    after
+      100 -> raise "data is not received"
+    end
   end
 end

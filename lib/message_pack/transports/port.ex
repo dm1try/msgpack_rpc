@@ -1,7 +1,7 @@
 defmodule MessagePack.Transports.Port do
   use GenServer
 
-  alias MessagePack.RPC.Session
+  @session Application.get_env(:msgpack_rpc, :session) || MessagePack.RPC.Session
 
   @default_port_settings [:stream, :binary]
 
@@ -40,7 +40,7 @@ defmodule MessagePack.Transports.Port do
       {:error, :incomplete} -> data
       {:ok, "", rest} -> rest
       {:ok, unpacked_data, rest} ->
-        Session.dispatch_data(session, unpacked_data)
+        @session.dispatch_data(session, unpacked_data)
         dispatch(session, rest)
     end
   end
