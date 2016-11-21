@@ -30,6 +30,20 @@ defmodule MessagePack.Transports.PortSpec do
     expect_unpacked_message_received
   end
 
+  context "msgpack data is delivered by multiple calls from a port(in parts)", async: false do
+    let :message_len, do: byte_size(packed_message)
+    let :diff, do: 3
+    let :first_part, do: :binary.part(packed_message, 0, message_len - diff)
+    let :second_part, do: :binary.part(packed_message, message_len - diff, diff)
+
+    it "buffers the data and unpack when it's possible" do
+      send_data_from_port(first_part)
+      send_data_from_port(second_part)
+
+      expect_unpacked_message_received
+    end
+  end
+
   defp send_data_from_port(data) do
     send @port_name, {:port, {:data, data}}
   end
