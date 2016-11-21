@@ -24,7 +24,7 @@ defmodule MessagePack.RPC.Mixfile do
 
   defp deps do
     [{:msgpax, "~> 0.8.2"},
-     {:espec, "~> 0.8.27", only: [:test]},
+     {:espec, "~> 1.1.2", only: [:test]},
      {:ex_doc, ">= 0.0.0", only: :dev}]
   end
 end
