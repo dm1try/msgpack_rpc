@@ -3,7 +3,7 @@ defmodule MessagePack.RPC.Mixfile do
 
   def project do
     [app: :msgpack_rpc,
-     version: "0.1.2",
+     version: "0.2.0",
      elixir: "~> 1.3",
      preferred_cli_env: [espec: :test],
      consolidate_protocols: Mix.env != :test,
