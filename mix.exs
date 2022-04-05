@@ -13,7 +13,8 @@ defmodule MessagePack.RPC.Mixfile do
   end
 
   def application do
-    [applications: [:logger]]
+    [applications: [:logger],
+     extra_applications: [:msgpax]]
   end
 
   defp package do
@@ -25,8 +26,8 @@ defmodule MessagePack.RPC.Mixfile do
   end
 
   defp deps do
-    [{:msgpax, "~> 0.8.2"},
-     {:espec, "~> 1.1.2", only: [:test]},
+    [{:msgpax, "~> 2.3.0"},
+     {:espec, "~> 1.8.3", only: [:test]},
      {:ex_doc, ">= 0.0.0", only: :dev}]
   end
 end

@@ -8,17 +8,17 @@ defmodule MessagePack.RPC.SessionSpec do
 
   defmodule TestHandler do
      def on_call(_session, "failure", _params) do
-       send ESpec.Runner, :on_terminate
-       Process.exit(self, "terminated in handler")
+       send SpecRunner, :on_terminate
+       Process.exit(self(), "terminated in handler")
      end
 
     def on_call(_session, method, _params) do
-      send ESpec.Runner, :on_call_received
+      send SpecRunner, :on_call_received
       {:ok, method}
     end
 
     def on_notify(_session, _method, _params) do
-      send ESpec.Runner, :on_notify_received
+      send SpecRunner, :on_notify_received
       {:ok, :processed}
     end
   end
@@ -33,6 +33,10 @@ defmodule MessagePack.RPC.SessionSpec do
     {:shared, port_pid: port_pid, session_pid: session_pid}
   end
 
+  before do
+    Process.register(self(), SpecRunner)
+  end
+
   finally do
     TestTransport.stop(shared.port_pid)
     GenServer.stop(shared.session_pid)
@@ -42,7 +46,7 @@ defmodule MessagePack.RPC.SessionSpec do
   let :notify_message, do: %Message.Notify{method: "method", params: ["param"]} |> Message.to_raw
 
   it "calls handler on request" do
-    Session.dispatch_data(@session_name, request_message)
+    Session.dispatch_data(@session_name, request_message())
 
     receive do
       :on_call_received ->
@@ -54,7 +58,7 @@ defmodule MessagePack.RPC.SessionSpec do
   end
 
   it "calls handler on notify" do
-    Session.dispatch_data(@session_name, notify_message)
+    Session.dispatch_data(@session_name, notify_message())
 
     receive do
       :on_notify_received ->
@@ -70,12 +74,12 @@ defmodule MessagePack.RPC.SessionSpec do
     let :last_message, do: List.last(TestTransport.messages(shared.port_pid))
 
     it "sends error respones if handler is terminated" do
-      Session.dispatch_data(@session_name, message_that_leads_to_failure)
+      Session.dispatch_data(@session_name, message_that_leads_to_failure())
 
       :timer.sleep 50
 
-      expect(last_message).to be_truthy
-      expect(Message.build(last_message).error).to have("handler is terminated")
+      expect(last_message()) |> to(be_truthy())
+      expect(Message.build(last_message()).error) |> to(have("handler is terminated"))
     end
   end
 end

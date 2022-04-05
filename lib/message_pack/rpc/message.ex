@@ -3,8 +3,8 @@ defmodule MessagePack.RPC.Message do
   @response 1
   @notify   2
 
-  @no_method_error 0x01
-  @argument_error  0x02
+#  @no_method_error 0x01
+#  @argument_error  0x02
 
   defmodule Request,        do: defstruct [:id, :method, :params]
   defmodule Notify,         do: defstruct [:method, :params]

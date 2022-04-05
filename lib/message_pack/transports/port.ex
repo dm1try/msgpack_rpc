@@ -37,8 +37,8 @@ defmodule MessagePack.Transports.Port do
 
   defp dispatch(session, data) do
     case  Msgpax.unpack_slice(data) do
-      {:error, {:bad_format, _}} -> data
-      {:error, :incomplete} -> data
+      {:error, %Msgpax.UnpackError{reason: {:invalid_format, _}}} -> data
+      {:error, %Msgpax.UnpackError{reason: :incomplete}} -> data
       {:ok, "", rest} -> rest
       {:ok, unpacked_data, rest} ->
         @session.dispatch_data(session, unpacked_data)
@@ -46,4 +46,3 @@ defmodule MessagePack.Transports.Port do
     end
   end
 end
-

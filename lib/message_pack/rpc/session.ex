@@ -60,7 +60,7 @@ defmodule MessagePack.RPC.Session do
   def handle_cast({:dispatch_data, data}, state) do
     state = try do
       message = Message.build(data)
-      session = self
+      session = self()
       dispatch_message(message, state, session)
     rescue
       Message.InvalidMessage ->
